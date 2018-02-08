@@ -1,34 +1,43 @@
-import delayer from 'timeout-as-promise'
+import * as delayer from 'timeout-as-promise'
 
 type MightBeAPromise = Promise<any> | null;
 
 export abstract class Sorter {
   private delay: number = 0.05;
-  private queue: MightBeAPromise = null;
+  protected size: number;
+  // private queue: MightBeAPromise = null;
   private onUpdateCallback: (n: number[]) => any;
   protected data: number[] = [];
 
-  constructor(delay: number) {
+  public abstract name: string;
+
+  constructor(delay: number, size: number) {
     this.delay = delay;
+    this.size = size;
+    this.data = [];
+    for (let i = 0; i < size; i++) {
+      this.data.push(Math.random())
+    }
   }
 
   protected async execSwap(indexA: number, indexB: number) {
-    let p: Promise<any> = delayer(this.delay).then(() => {
+    let p: Promise<any> = delayer(this.delay * 2).then(() => {
       let a = this.data[indexA];
       let b = this.data[indexB];
       this.data[indexA] = b;
       this.data[indexB] = a;
       this.onUpdateCallback(this.data)
     })
-    if (this.queue) {
-      this.queue.then(() => p)
-    } else {
-      this.queue = p
-    }
     return p
   }
 
-  public setData(d: number[]) { this.data = d }
+  protected async execReplace(index: number, newValue: number) {
+    let p: Promise<any> = delayer(this.delay).then(() => {
+      this.data[index] = newValue;
+      this.onUpdateCallback(this.data)
+    })
+    return p
+  }
 
   public getData() { return this.data }
 

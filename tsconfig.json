@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "./",
+    "types": [
+      "react"
+    ],
+    "lib": [
+      "es2016",
+      "dom"
+    ],
+    "moduleResolution": "node"
+  },
+  "include": [
+    "./src/*.ts",
+    "./src/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
