@@ -4,12 +4,14 @@ type MightBeAPromise = Promise<any> | null;
 
 export abstract class Sorter {
   private delay: number = 0.05;
-  protected size: number;
+  protected size: number
   // private queue: MightBeAPromise = null;
-  private onUpdateCallback: (n: number[]) => any;
-  protected data: number[] = [];
+  private onUpdateCallback: (n: number[]) => any
+  private onAuxDataCallback: (s) => any
+  protected data: number[] = []
+  private auxData: string = ''
 
-  public abstract name: string;
+  public static realName: string = 'Unnamed Sorter'
 
   constructor(delay: number, size: number) {
     this.delay = delay;
@@ -39,9 +41,16 @@ export abstract class Sorter {
     return p
   }
 
+  protected setAuxData(s: string) {
+    this.auxData = s
+    this.onAuxDataCallback(s)
+  }
+
   public getData() { return this.data }
 
   public onUpdate(f: (n: number[]) => any) { this.onUpdateCallback = f }
+  
+  public onAuxDataUpdate(f: (s: string) => any) { this.onAuxDataCallback = f }
 
   public shuffleData() {
     for (var i = this.data.length - 1; i > 0; i--) {

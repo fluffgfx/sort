@@ -1,7 +1,7 @@
-import { Sorter } from '../sorter'
+import { Sorter } from '../Sorter'
 
 export class MergeSort extends Sorter {
-  public name = 'MergeSort'
+  public static realName = 'MergeSort'
   
   public async sort() {
     return this.sortInner(0, this.size)
@@ -16,6 +16,7 @@ export class MergeSort extends Sorter {
   }
 
   private async merge(l: number, m: number, h: number): Promise<void> {
+    this.setAuxData(`Merging sorted data from ${l} to ${m-1} and ${m} to ${h}`)
     let i = this.data.slice(l, m), j = this.data.slice(m, h);
     let result = []
     for(let k = 0; k < h - l; k++) {

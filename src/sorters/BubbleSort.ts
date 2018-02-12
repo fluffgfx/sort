@@ -1,9 +1,14 @@
-import { Sorter } from '../sorter'
+import { Sorter } from '../Sorter'
 
 export class BubbleSort extends Sorter {
-  public name = 'Bubble Sort'
+  public static realName = 'BubbleSort'
   
   public async sort() {
+    return this.sortHelper(0)
+  }
+
+  public async sortHelper(pn: number) {
+    this.setAuxData(`Executing pass ${pn}`)
     let numPasses = 0
     let oldData = this.data
     for(let i = 0; i < this.size - 1; i++) {
@@ -13,6 +18,6 @@ export class BubbleSort extends Sorter {
       }
     }
     if (numPasses === 0) return
-    return this.sort()
-  }
+    return this.sortHelper(pn + 1)
+  } 
 }

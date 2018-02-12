@@ -5,9 +5,10 @@ import { SortVisualizer } from './SortVisualizer'
 import { BogoSort } from './sorters/BogoSort'
 import { MergeSort } from './sorters/MergeSort'
 import { BubbleSort } from './sorters/BubbleSort'
+import { HeapSort } from './sorters/HeapSort'
 
 let Root = () => {
-  return <SortVisualizer delay={0} rows={4} columns={100} sortAlgorithims={[BubbleSort, MergeSort]} />
+  return <SortVisualizer delay={0} rows={4} columns={100} sortAlgorithims={[HeapSort, BogoSort, BubbleSort, MergeSort]} />
 }
 
 render(

@@ -14,14 +14,16 @@ type VisualizerProps = {
 
 type VisualizerRowProps = {
   data: number[],
-  index: number
+  index: number,
+  auxData: string
 }
 
 type VisualizerState = {
   sorters: Sorter[],
   data: number[][],
   selectedSorter: number,
-  nya: number
+  nya: number,
+  auxData: string
 }
 
 export class SortVisualizer extends React.Component<VisualizerProps, VisualizerState> {
@@ -31,7 +33,7 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
     this.swapSort = this.swapSort.bind(this)
     this.startSorting = this.startSorting.bind(this)
     const { sorters, data, nya } = this.populateSorters(0)
-    this.state = { sorters, data, selectedSorter: 0, nya };
+    this.state = { sorters, data, selectedSorter: 0, nya, auxData: '' };
     setTimeout(this.startSorting, 1000)
   }
 
@@ -44,6 +46,9 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
       data[i] = s.getData()
       s.onUpdate((n) => { if(this.state.nya === nya) this.setState(() => ({
         data: this.state.data.map((x, j) => i !== j ? x : n)
+      }))})
+      s.onAuxDataUpdate((s) => { if(this.state.nya === nya) this.setState(() => ({
+        auxData: s
       }))})
       sorters.push(s)
     }
@@ -66,10 +71,10 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
   render() {
     return (
       <span>
-        {this.state.data.map((d, i) => (<SortVisualizerRow data={d} index={i} key={`svro_${i}`}/>))}
+        {this.state.data.map((d, i) => (<SortVisualizerRow data={d} index={i} key={`svro_${i}`} auxData={this.state.auxData}/>))}
         <select value={this.state.selectedSorter} onChange={this.swapSort}>
           {this.props.sortAlgorithims.map((a, i) => (
-            <option value={i}>{a.name}</option>
+            <option value={i}>{a.prototype.constructor.realName}</option>
           ))}
         </select>
       </span>
@@ -132,5 +137,6 @@ function SortVisualizerRow(props: VisualizerRowProps) {
         key={`svr_${props.index}_${i}`}>
       </div>
     ))}
+    <span>{props.auxData}</span>
   </div>)
 }
