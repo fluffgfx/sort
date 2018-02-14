@@ -18,7 +18,7 @@ export class HeapSort extends Sorter {
   }
 
   private async buildMaxHeap() {
-    for (var i = Math.floor(this.size / 2); i >= 0; i--) {
+    for (let i = Math.floor(this.size / 2); i >= 0; i--) {
        this.setAuxData(`Building Max Heap at index ${i}`)
        await this.heapify(i, this.size)
     }

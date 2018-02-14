@@ -2,8 +2,6 @@ import { Sorter } from '../Sorter'
 
 // been using this one to test performance
 export class BogoSort extends Sorter {
-  private index: number
-
   public static realName = 'BogoSort'
 
   public async sort() {

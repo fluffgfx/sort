@@ -3,15 +3,16 @@ import * as delayer from 'timeout-as-promise'
 type MightBeAPromise = Promise<any> | null;
 
 export abstract class Sorter {
-  private delay: number = 0.05;
+  public static realName: string = 'Unnamed Sorter'
+
   protected size: number
+  protected data: number[] = []
+
+  private delay: number = 0.05;
+  private auxData: string = ''
   // private queue: MightBeAPromise = null;
   private onUpdateCallback: (n: number[]) => any
   private onAuxDataCallback: (s) => any
-  protected data: number[] = []
-  private auxData: string = ''
-
-  public static realName: string = 'Unnamed Sorter'
 
   constructor(delay: number, size: number) {
     this.delay = delay;
@@ -22,44 +23,42 @@ export abstract class Sorter {
     }
   }
 
-  protected async execSwap(indexA: number, indexB: number) {
-    let p: Promise<any> = delayer(this.delay * 2).then(() => {
-      let a = this.data[indexA];
-      let b = this.data[indexB];
-      this.data[indexA] = b;
-      this.data[indexB] = a;
-      this.onUpdateCallback(this.data)
-    })
-    return p
-  }
-
-  protected async execReplace(index: number, newValue: number) {
-    let p: Promise<any> = delayer(this.delay).then(() => {
-      this.data[index] = newValue;
-      this.onUpdateCallback(this.data)
-    })
-    return p
-  }
-
-  protected setAuxData(s: string) {
-    this.auxData = s
-    this.onAuxDataCallback(s)
-  }
-
   public getData() { return this.data }
 
   public onUpdate(f: (n: number[]) => any) { this.onUpdateCallback = f }
-  
+
   public onAuxDataUpdate(f: (s: string) => any) { this.onAuxDataCallback = f }
 
   public shuffleData() {
-    for (var i = this.data.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = this.data[i];
+    for (let i = this.data.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = this.data[i];
         this.data[i] = this.data[j];
         this.data[j] = temp;
     }
   }
 
   public abstract sort()
+
+  protected async execSwap(indexA: number, indexB: number) {
+    return delayer(this.delay * 2).then(() => {
+      const a = this.data[indexA];
+      const b = this.data[indexB];
+      this.data[indexA] = b;
+      this.data[indexB] = a;
+      this.onUpdateCallback(this.data)
+    })
+  }
+
+  protected async execReplace(index: number, newValue: number) {
+    return delayer(this.delay).then(() => {
+      this.data[index] = newValue;
+      this.onUpdateCallback(this.data)
+    })
+  }
+
+  protected setAuxData(s: string) {
+    this.auxData = s
+    this.onAuxDataCallback(s)
+  }
 }

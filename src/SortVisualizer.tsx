@@ -8,7 +8,7 @@ const font = require('../DeterminationSansWeb.woff')
 
 declare var document
 
-type VisualizerProps = {
+interface VisualizerProps {
   sortAlgorithims: Array<{
     new(a: number, b: number): Sorter
   }>
@@ -17,13 +17,13 @@ type VisualizerProps = {
   columns: number
 }
 
-type VisualizerRowProps = {
+interface VisualizerRowProps {
   data: number[],
   index: number,
   auxData: string
 }
 
-type VisualizerState = {
+interface VisualizerState {
   sorters: Sorter[],
   data: number[][],
   selectedSorter: number,
@@ -49,46 +49,18 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
     cssn.innerHTML = `@font-face { font-family: 'Determination'; src: url(${font}) format('woff') }`
   }
 
-  populateSorters(n: number) {
-    let sorters: Sorter[] = []
-    let data: number[][] = []
-    let auxData: string[] = []
-    let nya: number = Math.random()
-    for (let i = 0; i < this.props.rows; i++) {
-      let s: Sorter = new this.props.sortAlgorithims[n](this.props.delay, this.props.columns)
-      data.push(s.getData())
-      auxData.push('')
-      s.onUpdate((n) => { if(this.state.nya === nya) this.setState(() => ({
-        data: this.state.data.map((x, j) => i !== j ? x : n)
-      }))})
-      s.onAuxDataUpdate((s) => { if(this.state.nya === nya) this.setState(() => ({
-        auxData: this.state.auxData.map((x, j) => i !== j ? x : s)
-      }))})
-      sorters.push(s)
-    }
-    return { sorters, auxData, data, nya }
-  }
-
-  startSorting() {
-    asyncForeach(this.state.sorters, (s) => s.sort())
-  }
-
-  shuffle(e) {
-    asyncForeach(this.state.sorters, (s) => { s.shuffle(); s.sort() });
-  }
-
-  swapSort(e) {
-    const v = e.target.value
-    this.setState({ selectedSorter: v }, () => {
-      this.setState(this.populateSorters(v), () => {
-        this.startSorting()
-      })
-    })
-  }
-
-  render() {
+  public render() {
     return (
-      <div style={{ position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', fontFamily: 'Determination', fontSize: '24px' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100vw',
+          height: '100vh',
+          fontFamily: 'Determination',
+          fontSize: '24px'
+        }}>
         {this.state.data.map((d, i) => (
           <SortVisualizerRow
             data={d}
@@ -105,12 +77,51 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
       </div>
     )
   }
+
+  private populateSorters(n: number) {
+    const sorters: Sorter[] = []
+    const data: number[][] = []
+    const auxData: string[] = []
+    const nya: number = Math.random()
+    for (let i = 0; i < this.props.rows; i++) {
+      const s: Sorter = new this.props.sortAlgorithims[n](this.props.delay, this.props.columns)
+      data.push(s.getData())
+      auxData.push('')
+      s.onUpdate((newData) => { if (this.state.nya === nya) this.setState(() => ({
+        data: this.state.data.map((x, j) => i !== j ? x : newData)
+      }))})
+      s.onAuxDataUpdate((str) => { if (this.state.nya === nya) this.setState(() => ({
+        auxData: this.state.auxData.map((x, j) => i !== j ? x : str)
+      }))})
+      sorters.push(s)
+    }
+    return { sorters, auxData, data, nya }
+  }
+
+  private startSorting() {
+    asyncForeach(this.state.sorters, (s) => s.sort())
+  }
+
+  private shuffle(e) {
+    asyncForeach(this.state.sorters, (s) => { s.shuffle(); s.sort() });
+  }
+
+  private swapSort(e) {
+    const v = e.target.value
+    this.setState({ selectedSorter: v }, () => {
+      this.setState(this.populateSorters(v), () => {
+        this.startSorting()
+      })
+    })
+  }
 }
 
 function SortVisualizerRow(props: VisualizerRowProps) {
-  let d = props.data.map(n => (n*6))
-  let bgc = d.map(n => {
-    let red = 0, blue = 0, green = 0
+  const d = props.data.map((n) => (n * 6))
+  const bgc = d.map((n) => {
+    let red = 0
+    let blue = 0
+    let green = 0
     switch (Math.floor(n)) {
       case 0:
         red = 255
@@ -143,35 +154,39 @@ function SortVisualizerRow(props: VisualizerRowProps) {
         green = (0 - (n - 6)) * 255
         break
       default:
-        console.log("how did i get here")
+        break
     }
     return `rgb(${red}, ${blue}, ${green})`
   })
-  return (<div
-    style={{
-      height: '200px',
-      width: '100%',
-      position: 'relative'
-    }}>
-    {d.map((n, i) => (
-      <div
-        style={{
-          width: `${100/props.data.length}%`,
-          height: '200px',
-          backgroundColor: bgc[i],
-          display: 'inline-block'
-        }}
-        key={`svr_${props.index}_${i}`}>
-      </div>
-    ))}
-    <span
+  return (
+    <div
       style={{
-        position: 'absolute',
-        right: '0',
-        bottom: '0',
-        textAlign: 'right',
-        backgroundColor: 'white',
-        padding: '5px 20px'
-      }}>{props.auxData}</span>
-  </div>)
+        height: '200px',
+        width: '100%',
+        position: 'relative'
+      }}>
+      {d.map((n, i) => (
+        <div
+          style={{
+            width: `${100 / props.data.length}%`,
+            height: '200px',
+            backgroundColor: bgc[i],
+            display: 'inline-block'
+          }}
+          key={`svr_${props.index}_${i}`}>
+        </div>
+      ))}
+      <span
+        style={{
+          position: 'absolute',
+          right: '0',
+          bottom: '0',
+          textAlign: 'right',
+          backgroundColor: 'white',
+          padding: '5px 20px'
+        }}>
+        {props.auxData}
+      </span>
+    </div>
+  )
 }

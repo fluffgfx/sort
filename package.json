@@ -14,10 +14,14 @@
     "promise-timeout": "^1.1.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "timeout-as-promise": "^1.0.0"
+    "timeout-as-promise": "^1.0.0",
+    "tslint-config-blvd": "file:../tslint-config-blvd"
   },
   "devDependencies": {
+    "file-loader": "^1.1.6",
     "ts-loader": "4.0.0-beta.0",
+    "tslint": "^5.9.1",
+    "tslint-microsoft-contrib": "^5.0.3",
     "typescript": "^2.7.1",
     "url-loader": "^0.6.2",
     "webpack": "^3.10.0"

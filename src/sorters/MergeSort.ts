@@ -2,7 +2,7 @@ import { Sorter } from '../Sorter'
 
 export class MergeSort extends Sorter {
   public static realName = 'MergeSort'
-  
+
   public async sort() {
     return this.sortInner(0, this.size).then(() => { this.setAuxData('Done!') })
   }
@@ -16,10 +16,11 @@ export class MergeSort extends Sorter {
   }
 
   private async merge(l: number, m: number, h: number): Promise<void> {
-    this.setAuxData(`Merging sorted data from ${l} to ${m-1} and ${m} to ${h}`)
-    let i = this.data.slice(l, m), j = this.data.slice(m, h);
+    this.setAuxData(`Merging sorted data from ${l} to ${m - 1} and ${m} to ${h}`)
+    const i = this.data.slice(l, m)
+    const j = this.data.slice(m, h)
     let result = []
-    for(let k = 0; k < h - l; k++) {
+    for (let k = 0; k < h - l; k++) {
       if (i.length === 0 || j.length === 0) break
       if (i[0] <= j[0]) {
         result.push(i.shift())
@@ -29,8 +30,6 @@ export class MergeSort extends Sorter {
     }
     if (i.length !== 0) result = result.concat(i)
     if (j.length !== 0) result = result.concat(j)
-    return result.reduce((p, n, i) => {
-      return p.then(() => this.execReplace(i + l, n))
-    }, Promise.resolve())
+    return result.reduce((p, n, x) => p.then(() => this.execReplace(x + l, n)), Promise.resolve())
   }
 }
