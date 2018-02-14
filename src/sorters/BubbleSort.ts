@@ -17,7 +17,10 @@ export class BubbleSort extends Sorter {
         numPasses++
       }
     }
-    if (numPasses === 0) return
+    if (numPasses === 0) {
+      this.setAuxData('Done!')
+      return
+    }
     return this.sortHelper(pn + 1)
   } 
 }

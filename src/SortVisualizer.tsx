@@ -3,6 +3,11 @@ import { forEach as asyncForeach } from 'async-foreach'
 
 import { Sorter } from './Sorter'
 
+declare const require
+const font = require('../DeterminationSansWeb.woff')
+
+declare var document
+
 type VisualizerProps = {
   sortAlgorithims: Array<{
     new(a: number, b: number): Sorter
@@ -23,7 +28,7 @@ type VisualizerState = {
   data: number[][],
   selectedSorter: number,
   nya: number,
-  auxData: string
+  auxData: string[]
 }
 
 export class SortVisualizer extends React.Component<VisualizerProps, VisualizerState> {
@@ -32,31 +37,44 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
     this.populateSorters = this.populateSorters.bind(this)
     this.swapSort = this.swapSort.bind(this)
     this.startSorting = this.startSorting.bind(this)
-    const { sorters, data, nya } = this.populateSorters(0)
-    this.state = { sorters, data, selectedSorter: 0, nya, auxData: '' };
+    this.shuffle = this.shuffle.bind(this)
+    const { sorters, data, nya, auxData } = this.populateSorters(0)
+    console.log(auxData)
+    this.state = { sorters, data, selectedSorter: 0, nya, auxData };
     setTimeout(this.startSorting, 1000)
+
+    // ultimate lazy
+    const cssn = document.createElement('style')
+    document.body.appendChild(cssn)
+    cssn.innerHTML = `@font-face { font-family: 'Determination'; src: url(${font}) format('woff') }`
   }
 
   populateSorters(n: number) {
     let sorters: Sorter[] = []
     let data: number[][] = []
+    let auxData: string[] = []
     let nya: number = Math.random()
     for (let i = 0; i < this.props.rows; i++) {
       let s: Sorter = new this.props.sortAlgorithims[n](this.props.delay, this.props.columns)
-      data[i] = s.getData()
+      data.push(s.getData())
+      auxData.push('')
       s.onUpdate((n) => { if(this.state.nya === nya) this.setState(() => ({
         data: this.state.data.map((x, j) => i !== j ? x : n)
       }))})
       s.onAuxDataUpdate((s) => { if(this.state.nya === nya) this.setState(() => ({
-        auxData: s
+        auxData: this.state.auxData.map((x, j) => i !== j ? x : s)
       }))})
       sorters.push(s)
     }
-    return { sorters, data, nya }
+    return { sorters, auxData, data, nya }
   }
 
   startSorting() {
     asyncForeach(this.state.sorters, (s) => s.sort())
+  }
+
+  shuffle(e) {
+    asyncForeach(this.state.sorters, (s) => { s.shuffle(); s.sort() });
   }
 
   swapSort(e) {
@@ -70,14 +88,21 @@ export class SortVisualizer extends React.Component<VisualizerProps, VisualizerS
 
   render() {
     return (
-      <span>
-        {this.state.data.map((d, i) => (<SortVisualizerRow data={d} index={i} key={`svro_${i}`} auxData={this.state.auxData}/>))}
+      <div style={{ position: 'absolute', top: '0', left: '0', width: '100vw', height: '100vh', fontFamily: 'Determination', fontSize: '24px' }}>
+        {this.state.data.map((d, i) => (
+          <SortVisualizerRow
+            data={d}
+            index={i}
+            key={`svro_${i}`}
+            auxData={this.state.auxData[i]}/>))}
         <select value={this.state.selectedSorter} onChange={this.swapSort}>
           {this.props.sortAlgorithims.map((a, i) => (
-            <option value={i}>{a.prototype.constructor.realName}</option>
+            <option key={`svopt_${i}`} value={i}>{a.prototype.constructor.realName}</option>
           ))}
         </select>
-      </span>
+        <button onClick={this.shuffle}>Shuffle</button>
+        <span style={{ position: 'absolute', top: '0', left: '0', padding: '5px 20px', background: 'white' }}>kyle's sort thing</span>
+      </div>
     )
   }
 }
@@ -124,12 +149,14 @@ function SortVisualizerRow(props: VisualizerRowProps) {
   })
   return (<div
     style={{
-      height: '200px'
+      height: '200px',
+      width: '100%',
+      position: 'relative'
     }}>
     {d.map((n, i) => (
       <div
         style={{
-          width: '5px',
+          width: `${100/props.data.length}%`,
           height: '200px',
           backgroundColor: bgc[i],
           display: 'inline-block'
@@ -137,6 +164,14 @@ function SortVisualizerRow(props: VisualizerRowProps) {
         key={`svr_${props.index}_${i}`}>
       </div>
     ))}
-    <span>{props.auxData}</span>
+    <span
+      style={{
+        position: 'absolute',
+        right: '0',
+        bottom: '0',
+        textAlign: 'right',
+        backgroundColor: 'white',
+        padding: '5px 20px'
+      }}>{props.auxData}</span>
   </div>)
 }

@@ -4,7 +4,7 @@ export class MergeSort extends Sorter {
   public static realName = 'MergeSort'
   
   public async sort() {
-    return this.sortInner(0, this.size)
+    return this.sortInner(0, this.size).then(() => { this.setAuxData('Done!') })
   }
 
   private async sortInner(l: number, h: number): Promise<void> {
